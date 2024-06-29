@@ -143,12 +143,6 @@ public class login extends javax.swing.JFrame {
                        this.setVisible(false);
                        break;
                    case 3:
-                       transaksi tran2 = new transaksi();
-                       tran2.setVisible(true);
-                       this.setVisible(false);
-                       tran2.btn_cetak_laporan.setEnabled(true);
-                       break;
-                   case 4:
                        stok_barang brg = new stok_barang();
                        brg.setVisible(true);
                        this.setVisible(false);

@@ -4,18 +4,72 @@
  */
 package uas_oop;
 
+import javax.swing.table.DefaultTableModel;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Yudhistira
  */
 public class registrasi extends javax.swing.JFrame {
+    private DefaultTableModel model = null;
+    private PreparedStatement stat;
+    private ResultSet rs;
+    koneksi k = new koneksi();
 
     /**
      * Creates new form stok_barang
      */
     public registrasi() {
         initComponents();
+        k.connect();
+        refreshTable();
     }
+    
+    class user extends registrasi{
+        int id_user, id_level;
+        String username, password, nama_user;
+        
+        public user(){
+            username = f_username.getText();
+            password = f_password.getText();
+            nama_user = f_nama_user.getText();
+            id_level = Integer.parseInt(combo_id_level.getSelectedItem().toString());
+        }
+    }
+    
+    public void refreshTable(){
+        model = new DefaultTableModel();
+        model.addColumn("ID User");
+        model.addColumn("Username");
+        model.addColumn("Password");
+        model.addColumn("Nama User");
+        model.addColumn("ID Level");
+        tabel_registrasi.setModel(model);
+        try {
+            this.stat = k.getcnn().prepareStatement("select * from user");
+            this.rs = this.stat.executeQuery();
+            while (rs.next()) {                
+                Object[] data = {
+                    rs.getString("id_user"),
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("nama_user"),
+                    rs.getString("id_level")
+                };
+                model.addRow(data);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+        f_id_user.setText("");
+        f_username.setText("");
+        f_password.setText("");
+        f_nama_user.setText("");
+    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -34,7 +88,7 @@ public class registrasi extends javax.swing.JFrame {
         f_password = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        id_level = new javax.swing.JComboBox<>();
+        combo_id_level = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabel_registrasi = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
@@ -80,12 +134,12 @@ public class registrasi extends javax.swing.JFrame {
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel5.setText("ID Level");
 
-        id_level.setFont(new java.awt.Font("Inter SemiBold", 0, 14)); // NOI18N
-        id_level.setForeground(new java.awt.Color(255, 0, 0));
-        id_level.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4" }));
-        id_level.addActionListener(new java.awt.event.ActionListener() {
+        combo_id_level.setFont(new java.awt.Font("Inter SemiBold", 0, 14)); // NOI18N
+        combo_id_level.setForeground(new java.awt.Color(255, 0, 0));
+        combo_id_level.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3" }));
+        combo_id_level.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                id_levelActionPerformed(evt);
+                combo_id_levelActionPerformed(evt);
             }
         });
 
@@ -100,12 +154,22 @@ public class registrasi extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tabel_registrasi.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabel_registrasiMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabel_registrasi);
 
         jPanel2.setBorder(new javax.swing.border.MatteBorder(null));
 
         btn_input.setFont(new java.awt.Font("Inter ExtraBold", 0, 18)); // NOI18N
         btn_input.setText("INPUT");
+        btn_input.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_inputActionPerformed(evt);
+            }
+        });
 
         btn_update.setFont(new java.awt.Font("Inter ExtraBold", 0, 18)); // NOI18N
         btn_update.setText("UPDATE");
@@ -193,7 +257,7 @@ public class registrasi extends javax.swing.JFrame {
                                 .addComponent(jLabel5))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(id_level, 0, 434, Short.MAX_VALUE)
+                                .addComponent(combo_id_level, 0, 434, Short.MAX_VALUE)
                                 .addComponent(f_nama_user)
                                 .addComponent(f_password)
                                 .addComponent(f_username)
@@ -226,7 +290,7 @@ public class registrasi extends javax.swing.JFrame {
                 .addGap(7, 7, 7)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(id_level, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(combo_id_level, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(15, 15, 15)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15)
@@ -242,20 +306,48 @@ public class registrasi extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_f_id_userActionPerformed
 
-    private void id_levelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_id_levelActionPerformed
+    private void combo_id_levelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combo_id_levelActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_id_levelActionPerformed
+    }//GEN-LAST:event_combo_id_levelActionPerformed
 
     private void btn_updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_updateActionPerformed
-        // TODO add your handling code here:
+        try {
+            user u = new user();
+            this.stat = k.getcnn().prepareStatement("update user set username=?,"
+                    + "password=?,nama_user=?,id_level=? where id_user=?");
+            stat.setString(1, u.username);
+            stat.setString(2, u.password);
+            stat.setString(3, u.nama_user);
+            stat.setInt(4, u.id_level);
+            stat.setString(5, f_id_user.getText());
+            stat.executeUpdate();
+            refreshTable();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
     }//GEN-LAST:event_btn_updateActionPerformed
 
     private void btn_deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_deleteActionPerformed
-        // TODO add your handling code here:
+        try {
+            user u = new user();
+            this.stat = k.getcnn().prepareStatement("delete from user where id_user=?");
+            stat.setString(1, f_id_user.getText());
+            stat.executeUpdate();
+            refreshTable();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
     }//GEN-LAST:event_btn_deleteActionPerformed
 
     private void btn_stok_barangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_stok_barangActionPerformed
-        // TODO add your handling code here:
+        stok_barang brg = new stok_barang();
+        brg.btn_input.setEnabled(true);
+        brg.btn_update.setEnabled(true);
+        brg.btn_delete.setEnabled(true);
+        brg.btn_registrasi.setEnabled(true);
+        brg.btn_transaksi.setEnabled(true);
+        brg.setVisible(true);
+        this.setVisible(false);
     }//GEN-LAST:event_btn_stok_barangActionPerformed
 
     private void btn_logoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_logoutActionPerformed
@@ -263,6 +355,29 @@ public class registrasi extends javax.swing.JFrame {
        l.setVisible(true);
        this.setVisible(false);
     }//GEN-LAST:event_btn_logoutActionPerformed
+
+    private void btn_inputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_inputActionPerformed
+        try {
+            user u = new user();
+            this.stat = k.getcnn().prepareStatement("insert into user values(?,?,?,?,?)");
+            stat.setInt(1, 0);
+            stat.setString(2, u.username);
+            stat.setString(3, u.password);
+            stat.setString(4, u.nama_user);
+            stat.setInt(5, u.id_level);
+            stat.executeUpdate();
+            refreshTable();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+    }//GEN-LAST:event_btn_inputActionPerformed
+
+    private void tabel_registrasiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_registrasiMouseClicked
+        f_id_user.setText(model.getValueAt(tabel_registrasi.getSelectedRow(), 0).toString());
+        f_username.setText(model.getValueAt(tabel_registrasi.getSelectedRow(), 1).toString());
+        f_password.setText(model.getValueAt(tabel_registrasi.getSelectedRow(), 2).toString());
+        f_nama_user.setText(model.getValueAt(tabel_registrasi.getSelectedRow(), 3).toString());
+    }//GEN-LAST:event_tabel_registrasiMouseClicked
 
     /**
      * @param args the command line arguments
@@ -306,11 +421,11 @@ public class registrasi extends javax.swing.JFrame {
     public javax.swing.JToggleButton btn_logout;
     public javax.swing.JButton btn_stok_barang;
     public javax.swing.JButton btn_update;
+    private javax.swing.JComboBox<String> combo_id_level;
     private javax.swing.JTextField f_id_user;
     private javax.swing.JTextField f_nama_user;
     private javax.swing.JTextField f_password;
     private javax.swing.JTextField f_username;
-    private javax.swing.JComboBox<String> id_level;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

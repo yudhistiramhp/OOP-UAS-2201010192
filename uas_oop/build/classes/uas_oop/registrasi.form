@@ -41,7 +41,7 @@
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="id_level" pref="434" max="32767" attributes="0"/>
+                              <Component id="combo_id_level" pref="434" max="32767" attributes="0"/>
                               <Component id="f_nama_user" max="32767" attributes="0"/>
                               <Component id="f_password" max="32767" attributes="0"/>
                               <Component id="f_username" max="32767" attributes="0"/>
@@ -84,7 +84,7 @@
               <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel5" alignment="3" min="-2" pref="36" max="-2" attributes="0"/>
-                  <Component id="id_level" alignment="3" min="-2" pref="38" max="-2" attributes="0"/>
+                  <Component id="combo_id_level" alignment="3" min="-2" pref="38" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
               <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
@@ -166,7 +166,7 @@
         <Property name="text" type="java.lang.String" value="ID Level"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="id_level">
+    <Component class="javax.swing.JComboBox" name="combo_id_level">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter SemiBold" size="14" style="0"/>
@@ -175,16 +175,15 @@
           <Color blue="0" green="0" red="ff" type="rgb"/>
         </Property>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
+          <StringArray count="3">
             <StringItem index="0" value="1"/>
             <StringItem index="1" value="2"/>
             <StringItem index="2" value="3"/>
-            <StringItem index="3" value="4"/>
           </StringArray>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="id_levelActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="combo_id_levelActionPerformed"/>
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
@@ -208,6 +207,9 @@
               </Table>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tabel_registrasiMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -259,6 +261,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="INPUT"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_inputActionPerformed"/>
+          </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
           </AuxValues>

@@ -4,19 +4,80 @@
  */
 package uas_oop;
 
+import java.awt.image.BufferedImage;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Yudhistira
  */
 public class stok_barang extends javax.swing.JFrame {
-
+    private DefaultTableModel model = null;
+    private PreparedStatement stat;
+    private ResultSet rs;
+    koneksi k = new koneksi();
     /**
      * Creates new form stok_barang
      */
     public stok_barang() {
         initComponents();
+        k.connect();
+        refreshTable();
     }
 
+    class barang extends stok_barang{
+        int id_barang, harga;
+        String nama_barang, status;
+        
+        public barang() {
+            this.nama_barang = f_nama_barang.getText();
+            this.harga = Integer.parseInt(f_harga.getText());
+            this.status = combo_status.getSelectedItem().toString();
+        }
+    }
+    
+    public void refreshTable() {
+        model = new DefaultTableModel();
+        model.addColumn("ID Barang");
+        model.addColumn("Nama Barang");
+        model.addColumn("Harga");
+        model.addColumn("Status");
+        tabel_barang.setModel(model);
+                try {
+            this.stat = k.getcnn().prepareStatement("select * from barang");
+            this.rs = this.stat.executeQuery();
+            while (rs.next()) {                
+                Object[] data = {
+                    rs.getString("id_barang"),
+                    rs.getString("nama_barang"),
+                    rs.getString("harga"),
+                    rs.getString("status"),
+                };
+                model.addRow(data);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+        f_id_barang.setText("");
+        f_nama_barang.setText("");
+        f_harga.setText("");
+    }
+    
+    private void loadphoto(String id_barang){
+    String pas0 = "src/img/photo.jpg";
+    String pas = "src/img/photo"+id_barang+".jpg";
+    
+    BufferedImage bimg = loadIMG.loadImage(pas);
+    if(bimg == null){
+        bimg = loadIMG.loadImage(pas0);
+    }
+    ImageIcon icoimg = new ImageIcon(bimg);
+    foto_barang.setIcon(icoimg);
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -34,8 +95,7 @@ public class stok_barang extends javax.swing.JFrame {
         f_harga = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        f_status = new javax.swing.JComboBox<>();
-        foto_barang = new javax.swing.JPanel();
+        combo_status = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabel_barang = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
@@ -45,6 +105,7 @@ public class stok_barang extends javax.swing.JFrame {
         btn_registrasi = new javax.swing.JButton();
         btn_logout = new javax.swing.JToggleButton();
         btn_transaksi = new javax.swing.JToggleButton();
+        foto_barang = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -80,27 +141,14 @@ public class stok_barang extends javax.swing.JFrame {
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("Status");
 
-        f_status.setFont(new java.awt.Font("Inter SemiBold", 0, 14)); // NOI18N
-        f_status.setForeground(new java.awt.Color(255, 0, 0));
-        f_status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tersedia", "Habis" }));
-        f_status.addActionListener(new java.awt.event.ActionListener() {
+        combo_status.setFont(new java.awt.Font("Inter SemiBold", 0, 14)); // NOI18N
+        combo_status.setForeground(new java.awt.Color(255, 0, 0));
+        combo_status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tersedia", "Habis" }));
+        combo_status.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                f_statusActionPerformed(evt);
+                combo_statusActionPerformed(evt);
             }
         });
-
-        foto_barang.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        javax.swing.GroupLayout foto_barangLayout = new javax.swing.GroupLayout(foto_barang);
-        foto_barang.setLayout(foto_barangLayout);
-        foto_barangLayout.setHorizontalGroup(
-            foto_barangLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 156, Short.MAX_VALUE)
-        );
-        foto_barangLayout.setVerticalGroup(
-            foto_barangLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
 
         tabel_barang.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -113,6 +161,11 @@ public class stok_barang extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tabel_barang.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabel_barangMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabel_barang);
 
         jPanel2.setBorder(new javax.swing.border.MatteBorder(null));
@@ -120,6 +173,11 @@ public class stok_barang extends javax.swing.JFrame {
         btn_input.setFont(new java.awt.Font("Inter ExtraBold", 0, 18)); // NOI18N
         btn_input.setText("INPUT");
         btn_input.setEnabled(false);
+        btn_input.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_inputActionPerformed(evt);
+            }
+        });
 
         btn_update.setFont(new java.awt.Font("Inter ExtraBold", 0, 18)); // NOI18N
         btn_update.setText("UPDATE");
@@ -193,6 +251,9 @@ public class stok_barang extends javax.swing.JFrame {
             }
         });
 
+        foto_barang.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/photo1.jpg"))); // NOI18N
+        foto_barang.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -216,13 +277,13 @@ public class stok_barang extends javax.swing.JFrame {
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(f_nama_barang, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(f_harga, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(f_status, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(combo_status, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                     .addComponent(jLabel2)
                                     .addGap(56, 56, 56)
                                     .addComponent(f_id_barang, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGap(29, 29, 29)
-                            .addComponent(foto_barang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(27, 27, 27)
+                            .addComponent(foto_barang))
                         .addComponent(jScrollPane1)
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
@@ -238,7 +299,7 @@ public class stok_barang extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -254,8 +315,8 @@ public class stok_barang extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(f_status, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(foto_barang, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(combo_status, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(foto_barang))
                 .addGap(15, 15, 15)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15)
@@ -271,20 +332,42 @@ public class stok_barang extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_f_id_barangActionPerformed
 
-    private void f_statusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_f_statusActionPerformed
+    private void combo_statusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combo_statusActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_f_statusActionPerformed
+    }//GEN-LAST:event_combo_statusActionPerformed
 
     private void btn_updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_updateActionPerformed
-        // TODO add your handling code here:
+        try {
+            barang b = new barang();
+            this.stat = k.getcnn().prepareStatement("update barang set nama_barang=?,"
+                    + "harga=?,status=? where id_barang=?");
+            stat.setString(1, b.nama_barang);
+            stat.setInt(2, b.harga);
+            stat.setString(3, b.status);
+            stat.setInt(4, Integer.parseInt(f_id_barang.getText()));
+            stat.executeUpdate();
+            refreshTable();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
     }//GEN-LAST:event_btn_updateActionPerformed
 
     private void btn_deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_deleteActionPerformed
-        // TODO add your handling code here:
+        try {
+            barang b = new barang();
+            this.stat = k.getcnn().prepareStatement("delete from barang where id_barang=?");
+            stat.setInt(1, Integer.parseInt(f_id_barang.getText()));
+            stat.executeUpdate();
+            refreshTable();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
     }//GEN-LAST:event_btn_deleteActionPerformed
 
     private void btn_registrasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_registrasiActionPerformed
-        // TODO add your handling code here:
+        registrasi reg = new registrasi();
+        reg.setVisible(true);
+        this.setVisible(false);
     }//GEN-LAST:event_btn_registrasiActionPerformed
 
     private void btn_logoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_logoutActionPerformed
@@ -294,8 +377,32 @@ public class stok_barang extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_logoutActionPerformed
 
     private void btn_transaksiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_transaksiActionPerformed
-        // TODO add your handling code here:
+        transaksi tran = new transaksi();
+        tran.setVisible(true);
+        this.setVisible(false);
     }//GEN-LAST:event_btn_transaksiActionPerformed
+
+    private void btn_inputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_inputActionPerformed
+        try {
+            barang b = new barang();
+            this.stat = k.getcnn().prepareStatement("insert into barang values(?,?,?,?)");
+            stat.setInt(1, 0);
+            stat.setString(2, b.nama_barang);
+            stat.setInt(3, b.harga);
+            stat.setString(4, b.status);
+            stat.executeUpdate();
+            refreshTable();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+    }//GEN-LAST:event_btn_inputActionPerformed
+
+    private void tabel_barangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_barangMouseClicked
+        f_id_barang.setText(model.getValueAt(tabel_barang.getSelectedRow(), 0).toString());
+        f_nama_barang.setText(model.getValueAt(tabel_barang.getSelectedRow(), 1).toString());
+        f_harga.setText(model.getValueAt(tabel_barang.getSelectedRow(), 2).toString());
+        loadphoto(f_id_barang.getText());
+    }//GEN-LAST:event_tabel_barangMouseClicked
 
     /**
      * @param args the command line arguments
@@ -339,11 +446,11 @@ public class stok_barang extends javax.swing.JFrame {
     public javax.swing.JButton btn_registrasi;
     public javax.swing.JToggleButton btn_transaksi;
     public javax.swing.JButton btn_update;
+    private javax.swing.JComboBox<String> combo_status;
     private javax.swing.JTextField f_harga;
     private javax.swing.JTextField f_id_barang;
     private javax.swing.JTextField f_nama_barang;
-    private javax.swing.JComboBox<String> f_status;
-    private javax.swing.JPanel foto_barang;
+    private javax.swing.JLabel foto_barang;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
